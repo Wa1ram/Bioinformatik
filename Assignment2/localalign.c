@@ -14,6 +14,27 @@ static size_t m;
 static size_t n;
 static int max_score;
 
+
+int max4(int a, int b, int c, int d)
+{
+    return max(max(a, b), max(c, d));
+}
+
+
+void print_matrix()
+{
+    printf("\n");
+    for (int i = 0; i < m + 1; i++)
+    {
+        for (int j = 0; j < n + 1; j++)
+        {
+            printf("%4d ", mat[i][j]); // %4d nice format
+        }
+        printf("\n");
+    }
+}
+
+
 char **read_fasta(const char *filename)
 {
     FILE *file = fopen(filename, "r");
@@ -32,7 +53,6 @@ char **read_fasta(const char *filename)
     {
         capacities[i] = 128; // start size
         sequences[i] = malloc(capacities[i]);
-        sequences[i][0] = '\0'; // empty string
     }
 
     char line[1024];
@@ -71,18 +91,6 @@ char **read_fasta(const char *filename)
 }
 
 
-int max4(int a, int b, int c, int d)
-{
-    int max = a;
-    if (b > max)
-        max = b;
-    if (c > max)
-        max = c;
-    if (d > max)
-        max = d;
-    return max;
-}
-
 void create_matrix(char *seq1, char *seq2)
 {
     m = strlen(seq1);
@@ -115,18 +123,6 @@ void create_matrix(char *seq1, char *seq2)
     }
 }
 
-void print_matrix()
-{
-    printf("\n");
-    for (int i = 0; i < m + 1; i++)
-    {
-        for (int j = 0; j < n + 1; j++)
-        {
-            printf("%4d ", mat[i][j]); // %4d nice format
-        }
-        printf("\n");
-    }
-}
 
 void backtrack_core(int i, int j){
     int max_len = max(m, n);
@@ -173,6 +169,7 @@ void backtrack_core(int i, int j){
     free(s2);
 }
 
+
 void find_alignment_cores()
 {
     for (int i = 1; i < m + 1; i++)
@@ -187,6 +184,18 @@ void find_alignment_cores()
     }
 }
 
+
+void free_resources() {
+    for (int i = 0; i < MAX_SEQUENCES; i++)
+        free(sequences[i]);
+    free(sequences);
+
+    for (int i = 0; i < m + 1; i++)
+        free(mat[i]);
+    free(mat);
+}
+
+
 int main(int argc, char *argv[])
 {
     sequences = read_fasta("very_short_test.fasta");
@@ -196,8 +205,6 @@ int main(int argc, char *argv[])
     printf("%d", max_score);
     find_alignment_cores();
 
-    for (int i = 0; i < MAX_SEQUENCES; i++)
-        free(sequences[i]);
-    free(sequences);
+    free_resources();
     return 0;
 }
