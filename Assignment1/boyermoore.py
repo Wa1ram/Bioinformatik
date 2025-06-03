@@ -1,6 +1,6 @@
 import sys
 
-def boyer_moore(search_file, pattern, bcr_pre, gsr_pre):
+def boyer_moore(search_file, pattern, bcr_pre: dict, gsr_pre: dict):
     """
     Searches for occurrences of a pattern in a sequence using the Boyer-Moore algorithm
     with a sliding window approach. Returns the number of bad character rule uses,
@@ -114,18 +114,23 @@ def gsr_preprocessing(seq):
     seq_len = len(seq)
     gsr = {}
     
-    for suffix_size in range(1, seq_len-1):
+    for suffix_size in range(1, seq_len):
         suffix = seq[-suffix_size:]
         bad_character = seq[-suffix_size-1]
         
-        # atgca̲g̲g̲aaaaa  ->  a̲g̲g̲aaaaa    (suffix not found)
-        # atgta̲g̲g̲            atgtagg
+        # atgca̲g̲g̲aaaaa  ->  atgca̲g̲g̲aaaaa    (suffix not found)
+        # atgta̲g̲g̲                atgtagg
         shift = seq_len - suffix_size+1
         
-        for index in range(1, seq_len - suffix_size-1):
-           
+        for index in range(1, seq_len - suffix_size + 1):
+            
+            # check if bad_char out of seq bounds
+            if index == seq_len-suffix_size and seq[-suffix_size - index : -index] == suffix:
+                shift = index
+                break
+                
             # taggca̲g̲g̲aaaaa  ->     taggca̲g̲g̲aaaaa    (suffix found and leading literal different from bad character)
-            # taggta̲g̲g̲                  taggtagg
+            # aaggta̲g̲g̲                  aaggtagg
             if seq[-suffix_size - index : -index] == suffix and bad_character != seq[-suffix_size - index - 1]:
                 shift = index
                 break
@@ -189,5 +194,4 @@ def main(args):
 
 if __name__ == '__main__':
     # pass all arguments (not including the invoked .py file)
-    #main(sys.argv[1:])
-    main(["test1.fasta", "test2.fasta"])
+    main(sys.argv[1:])
