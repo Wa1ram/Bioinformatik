@@ -2,14 +2,6 @@ import gzip
 import sys
 
 
-def check_node_conn(clique, node, edges):
-    for node2 in clique:
-        if node | frozenset([node2]) not in edges:
-            return False
-
-    return True
-
-
 def max_cliques(edges: set):
     clique_size = 2
     current_cliques = edges
@@ -31,8 +23,7 @@ def max_cliques(edges: set):
                 unique_in_c1 = c1 - c2
                 unique_in_c2 = c2 - c1
 
-                if (check_node_conn(c2, unique_in_c1, edges) and
-                    check_node_conn(c1, unique_in_c2, edges)):
+                if (unique_in_c1 | unique_in_c2 in edges):
                     current_cliques.add(candidate)
 
         if not current_cliques:
@@ -74,6 +65,7 @@ def get_all_edges_from_ppi_file(filepath):
 
     
     return edges, protein_to_index, index_to_protein
+
 
 def print_cliques(cliques, clique_size, idx_to_protein):
     print(f"Size of maximal clique(s): {clique_size}")
